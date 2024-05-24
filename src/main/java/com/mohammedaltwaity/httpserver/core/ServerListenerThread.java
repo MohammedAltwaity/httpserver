@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 
 public class ServerListenerThread extends Thread {
 
-    private final static Logger LOGGER = Logger.getLogger(ServerListenerThread.class.getName());
     private  int port;
     private String webroot;
     private ServerSocket serverSocket;
@@ -26,14 +25,17 @@ public class ServerListenerThread extends Thread {
     @Override
     public void run(){
 
-        while(serverSocket.isBound() && !serverSocket.isClosed()) {
+        while(true) {
             try {
                 Socket socket = serverSocket.accept();
-                LOGGER.info("Connection accepted from the client" + socket.getInetAddress() + ":" + socket.getPort());
+                System.out.println("Connection accepted from the client" + socket.getInetAddress() + ":" + socket.getPort());;
 
 
                 InputStream inputStream = socket.getInputStream();
                 OutputStream outputStream = socket.getOutputStream();
+
+
+
 
 
                 String html = "<html><head>My server</head><body><h1>From my server</h1></body></html>";
@@ -52,6 +54,7 @@ public class ServerListenerThread extends Thread {
                 outputStream.write(response.getBytes());
 
 
+
                 inputStream.close();
                 outputStream.close();
                 socket.close();
@@ -62,11 +65,6 @@ public class ServerListenerThread extends Thread {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
