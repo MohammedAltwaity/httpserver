@@ -26,38 +26,45 @@ public class ServerListenerThread extends Thread {
     @Override
     public void run(){
 
-
-        try {
-            Socket socket = serverSocket.accept();
-            LOGGER.info("Connection accepted" + socket.getInetAddress());
-
-
-            InputStream inputStream = socket.getInputStream();
-            OutputStream outputStream = socket.getOutputStream();
+        while(serverSocket.isBound() && !serverSocket.isClosed()) {
+            try {
+                Socket socket = serverSocket.accept();
+                LOGGER.info("Connection accepted from the client" + socket.getInetAddress() + ":" + socket.getPort());
 
 
-            String html = "<html><head>My server</head><body><h1>From my server</h1></body></html>";
-            String CRLF = "\r\n";
+                InputStream inputStream = socket.getInputStream();
+                OutputStream outputStream = socket.getOutputStream();
+
+
+                String html = "<html><head>My server</head><body><h1>From my server</h1></body></html>";
+                String CRLF = "\r\n";
 
 // Content length of the HTML content
-            int contentLength = html.getBytes().length;
+                int contentLength = html.getBytes().length;
 
 // Construct the HTTP response
-            String response = "HTTP/1.1 200 OK" + CRLF; // Status line
-            response += "Content-Length: " + contentLength + CRLF; // Content length header
-            response += "Content-Type: text/html" + CRLF; // Content type header
-            response += CRLF; // Empty line separating headers and body
-            response += html; // HTML body
+                String response = "HTTP/1.1 200 OK" + CRLF; // Status line
+                response += "Content-Length: " + contentLength + CRLF; // Content length header
+                response += "Content-Type: text/html" + CRLF; // Content type header
+                response += CRLF; // Empty line separating headers and body
+                response += html; // HTML body
 
-            outputStream.write(response.getBytes());
+                outputStream.write(response.getBytes());
 
 
-            inputStream.close();
-            outputStream.close();
-            socket.close();
+                inputStream.close();
+                outputStream.close();
+                socket.close();
+
+               // serverSocket.close();
+
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        try {
             serverSocket.close();
-
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
